@@ -56,6 +56,10 @@ def _write_stub_scan(path: Path) -> None:
 """
     path.write_text(content)
 
+DEFAULT_INTERVAL = int(os.getenv("SCAN_INTERVAL", "600"))
+DEFAULT_TARGETS = os.getenv("SCAN_TARGETS", "127.0.0.1")
+OUTPUT_DIR = Path("/data/scans")
+
 
 def run_scan() -> Path:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -86,6 +90,16 @@ def run_scan() -> Path:
         if not output_path.exists():
             _write_stub_scan(output_path)
 
+    cmd = [
+        "nmap",
+        "-sV",
+        "-O",
+        "-Pn",
+        DEFAULT_TARGETS,
+        "-oX",
+        str(output_path),
+    ]
+    subprocess.run(cmd, check=False)
     return output_path
 
 
