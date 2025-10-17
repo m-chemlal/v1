@@ -1,0 +1,111 @@
+version: "3.9"
+
+networks:
+  soc-net:
+    driver: bridge
+
+volumes:
+  wazuh-data:
+  indexer-data:
+  data-shared:
+
+services:
+  wazuh-indexer:
+    image: wazuh/wazuh-indexer:4.7.5
+    environment:
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${INDEXER_PASS}
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - indexer-data:/var/lib/wazuh-indexer
+    networks:
+      - soc-net
+
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.7.5
+    depends_on:
+      - wazuh-indexer
+    environment:
+      - INDEXER_URL=https://wazuh-indexer:9200
+    env_file:
+      - .env
+    ports:
+      - "55000:55000"
+    volumes:
+      - wazuh-data:/var/ossec
+      - data-shared:/data
+      - ./wazuh/config/decoders.d/trusted_ai_soc_decoders.xml:/var/ossec/etc/decoders/trusted_ai_soc_decoders.xml:ro
+      - ./wazuh/config/rules.d/trusted_ai_soc_rules.xml:/var/ossec/etc/rules/trusted_ai_soc_rules.xml:ro
+    networks:
+      - soc-net
+
+  wazuh-dashboard:
+    image: wazuh/wazuh-dashboard:4.7.5
+    depends_on:
+      - wazuh-indexer
+      - wazuh-manager
+    environment:
+      - DASHBOARD_USERNAME=${DASHBOARD_USERNAME}
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD}
+      - WAZUH_API_URL=https://wazuh-manager:55000
+      - WAZUH_API_USERNAME=${WAZUH_API_USERNAME}
+      - WAZUH_API_PASSWORD=${WAZUH_API_PASSWORD}
+    ports:
+      - "5601:5601"
+    networks:
+      - soc-net
+
+  soc-nmap:
+    build: ./scanner
+    depends_on:
+      - wazuh-manager
+    volumes:
+      - data-shared:/data
+    environment:
+      - SCAN_TARGETS=${SCAN_TARGETS}
+      - SCAN_INTERVAL=${SCAN_INTERVAL}
+    networks:
+      - soc-net
+
+  soc-ai:
+    build: ./ai_engine
+    depends_on:
+      - soc-nmap
+    volumes:
+      - data-shared:/data
+    environment:
+      - WAZUH_SYSLOG_HOST=wazuh-manager
+      - WAZUH_SYSLOG_PORT=1514
+      - ALERT_SCORE_THRESHOLD=${ALERT_SCORE_THRESHOLD}
+    networks:
+      - soc-net
+
+  soc-responder:
+    build: ./response
+    depends_on:
+      - soc-ai
+    volumes:
+      - data-shared:/data
+      - /var/run/ufw:/var/run/ufw:ro
+    environment:
+      - RESPONSE_POLICY=/app/policy.yaml
+    networks:
+      - soc-net
+
+  soc-ui:
+    build: ./dashboard
+    depends_on:
+      - soc-ai
+    volumes:
+      - data-shared:/data
+    ports:
+      - "8501:8501"
+    networks:
+      - soc-net

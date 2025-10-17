@@ -1,0 +1,2 @@
+python-crontab==3.0.0
+xmltodict==0.13.0

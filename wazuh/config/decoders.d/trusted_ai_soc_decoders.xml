@@ -1,0 +1,6 @@
+<decoders>
+  <decoder name="trusted_ai_soc_json">
+    <prematch>^TRUSTED_AI_SOC</prematch>
+    <json_decoder />
+  </decoder>
+</decoders>

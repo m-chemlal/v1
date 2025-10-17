@@ -1,0 +1,6 @@
+score_thresholds:
+  block_ip: 0.85
+  email_only: 0.70
+actions:
+  block_cmd: "ufw deny from {src_ip}"
+  mail_to: "soc@example.local"
