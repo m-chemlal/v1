@@ -1,0 +1,12 @@
+<group name="trusted_ai_soc,">
+  <rule id="120500" level="10">
+    <if_decoder_name>trusted_ai_soc_json</if_decoder_name>
+    <field name="event_type">ai_alert</field>
+    <description>AI Alert: $(alert.summary)</description>
+    <group>ai,network,nmap,</group>
+    <mitre>
+      <id>T1046</id>
+    </mitre>
+    <options>no_full_log</options>
+  </rule>
+</group>
