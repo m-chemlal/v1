@@ -10,6 +10,7 @@ logs:
 docker compose logs -f --tail=200
 
 scan:
+docker compose exec -e SCAN_DRY_RUN=1 soc-nmap python -m app.run --once
 docker compose exec soc-nmap python -m app.run --once
 docker compose exec soc-nmap ls -1 /data/scans | tail -n5
 

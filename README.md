@@ -10,3 +10,20 @@ make up
 ```
 
 Then follow the detailed instructions in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+### Quick smoke tests
+
+The provided `make` targets run lightweight validations without needing full
+network scans:
+
+```bash
+make scan   # runs the scanner in SCAN_DRY_RUN mode and lists the output files
+make ai     # parses the most recent scan and emits AI alerts
+make responder  # exercises the automated responder in dry-run mode
+```
+
+To perform a real discovery scan, override the dry-run flag and adjust targets:
+
+```bash
+SCAN_DRY_RUN=0 SCAN_TARGETS="192.168.1.0/24" make scan
+```
