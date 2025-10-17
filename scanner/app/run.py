@@ -39,6 +39,7 @@ except ValueError:
 # are provided. Operators can opt-in to real scans by setting SCAN_DRY_RUN=0
 # (or "false").
 DRY_RUN = os.getenv("SCAN_DRY_RUN", "1").lower() in {"1", "true", "yes"}
+DRY_RUN = os.getenv("SCAN_DRY_RUN", "").lower() in {"1", "true", "yes"}
 
 
 def _build_command(output_path: Path, targets: Iterable[str]) -> list[str]:
@@ -58,6 +59,10 @@ def _write_stub_scan(path: Path) -> None:
 </nmaprun>
 """
     path.write_text(content)
+
+DEFAULT_INTERVAL = int(os.getenv("SCAN_INTERVAL", "600"))
+DEFAULT_TARGETS = os.getenv("SCAN_TARGETS", "127.0.0.1")
+OUTPUT_DIR = Path("/data/scans")
 
 
 def run_scan() -> Path:
@@ -89,6 +94,16 @@ def run_scan() -> Path:
         if not output_path.exists():
             _write_stub_scan(output_path)
 
+    cmd = [
+        "nmap",
+        "-sV",
+        "-O",
+        "-Pn",
+        DEFAULT_TARGETS,
+        "-oX",
+        str(output_path),
+    ]
+    subprocess.run(cmd, check=False)
     return output_path
 
 

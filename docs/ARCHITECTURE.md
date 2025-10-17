@@ -95,6 +95,7 @@ The Compose file spins up the Wazuh stack plus three SOC microservices. Key poin
 
 1. `make up` to start the stack.
 2. `make scan` to run a dry-run validation (set `SCAN_DRY_RUN=0` for a real scan).
+2. `make scan` to launch an on-demand Nmap scan (scheduled scans are automatic).
 3. `make ai` to process the latest scans manually during testing.
 4. Check Wazuh dashboard at `http://<host>:5601` for AI alerts.
 5. `make down` to stop; `make clean` to purge local data (demo environments only).

@@ -18,6 +18,7 @@ network scans:
 
 ```bash
 make scan   # runs the scanner in dry-run mode and lists the output files
+make scan   # runs the scanner in SCAN_DRY_RUN mode and lists the output files
 make ai     # parses the most recent scan and emits AI alerts
 make responder  # exercises the automated responder in dry-run mode
 ```
