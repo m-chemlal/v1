@@ -1,0 +1,3 @@
+# Optional dependencies for production deployments
+# PyYAML
+# watchdog
