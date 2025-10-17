@@ -35,6 +35,10 @@ except ValueError:
     )
     MAX_RUNTIME = None
 
+# Default to dry-run behaviour so the service is safe even when no env vars
+# are provided. Operators can opt-in to real scans by setting SCAN_DRY_RUN=0
+# (or "false").
+DRY_RUN = os.getenv("SCAN_DRY_RUN", "1").lower() in {"1", "true", "yes"}
 DRY_RUN = os.getenv("SCAN_DRY_RUN", "").lower() in {"1", "true", "yes"}
 
 
